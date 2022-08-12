@@ -15,16 +15,18 @@ def get_workflow_response(message, session_id):
     response = session_client.detect_intent(
         request={"session": session, "query_input": query_input}
     )
-    return response.query_result.fulfillment_text
+    if not response.query_result.intent.is_fallback:
+        return response.query_result.fulfillment_text
 
 
 def respond(event, vk_api):
     response = get_workflow_response(event.text, event.user_id)
-    vk_api.messages.send(
-        user_id=event.user_id,
-        message=response,
-        random_id=random.randint(1,1000)
-    )
+    if response:
+        vk_api.messages.send(
+            user_id=event.user_id,
+            message=response,
+            random_id=random.randint(1,1000)
+        )
 
 
 def main():
