@@ -40,7 +40,7 @@ def main():
     args = parser.parse_args()
     with open(args.path_to_file, 'r', encoding='utf-8') as file:
         training_set = json.load(file)
-    
+
     for display_name, q_and_a in training_set.items():
         response = create_intent(
             display_name=display_name,
@@ -49,8 +49,8 @@ def main():
         )
         print(response)
 
+
 if __name__ == "__main__":
     load_dotenv()
     project_id = os.getenv('GOOGLE_PROJECT_ID')
-
     main()

@@ -1,14 +1,19 @@
 import logging
 import os
 
+import json
+import html
+import traceback
 import telegram
 from dotenv import load_dotenv
 from google.cloud import dialogflow
 from telegram import Update
+from telegram.constants import PARSEMODE_HTML
 from telegram.ext import (CallbackContext, CommandHandler, Filters,
                           MessageHandler, Updater)
 
 logger = logging.getLogger('Logger')
+
 
 class TelegramLogsHandler(logging.Handler):
     """Logger handler class."""
@@ -24,11 +29,17 @@ class TelegramLogsHandler(logging.Handler):
 
 
 def start(update: Update, context: CallbackContext):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Здравствуйте!")
+    context.bot.send_message(
+        chat_id=update.effective_chat.id,
+        text="Здравствуйте!"
+    )
 
 
 def response(update: Update, context: CallbackContext):
-    response = get_workflow_response(update.message.text, update.message.from_user.id)
+    response = get_workflow_response(
+        update.message.text,
+        update.message.from_user.id
+    )
     update.message.reply_text(response)
 
 
@@ -43,6 +54,10 @@ def get_workflow_response(message, session_id):
     return response.query_result.fulfillment_text
 
 
+def error_handler(update: Update, context: CallbackContext):
+    logger.error(msg="Бот упал с ошибкой:", exc_info=context.error)
+
+
 def main():
     logger_bot = telegram.Bot(logger_bot_token)
     logger.addHandler(TelegramLogsHandler(logger_bot, chat_id))
@@ -50,15 +65,18 @@ def main():
 
     updater = Updater(token=telegram_token, use_context=True)
     dispatcher = updater.dispatcher
-
+    
     start_handler = CommandHandler('start', start)
     echo_handler = MessageHandler(Filters.text, response)
-    
+
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(echo_handler)
+    dispatcher.add_error_handler(error_handler)
 
     updater.start_polling()
     updater.idle()
+    
+
 
 if __name__ == "__main__":
     load_dotenv()

@@ -1,10 +1,10 @@
-import random
-import vk_api
-from vk_api.longpoll import VkLongPoll, VkEventType
-
-from google.cloud import dialogflow
-from dotenv import load_dotenv
 import os
+import random
+
+import vk_api
+from dotenv import load_dotenv
+from google.cloud import dialogflow
+from vk_api.longpoll import VkEventType, VkLongPoll
 
 
 def get_workflow_response(message, session_id):
@@ -25,7 +25,7 @@ def respond(event, vk_api):
         vk_api.messages.send(
             user_id=event.user_id,
             message=response,
-            random_id=random.randint(1,1000)
+            random_id=random.randint(1, 1000)
         )
 
 
