@@ -5,10 +5,10 @@ import telegram
 from telegram import Update
 from telegram.ext import Updater, CallbackContext
 from telegram.ext import MessageHandler, Filters, CommandHandler
+from google.cloud import dialogflow
 
 
 logger = logging.getLogger('Logger')
-
 
 class TelegramLogsHandler(logging.Handler):
     """Logger handler class."""
@@ -26,16 +26,24 @@ class TelegramLogsHandler(logging.Handler):
 def start(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Здравствуйте!")
 
+
 def echo(update: Update, context: CallbackContext):
-    update.message.reply_text(update.message.text)
+    response = get_workflow_response(update.message.text, update.message.from_user.id)
+    update.message.reply_text(response)
+
+
+def get_workflow_response(message, session_id):
+    session_client = dialogflow.SessionsClient()
+    session = session_client.session_path(project_id, session_id)
+    text_input = dialogflow.TextInput(text=message, language_code='ru')
+    query_input = dialogflow.QueryInput(text=text_input)
+    response = session_client.detect_intent(
+        request={"session": session, "query_input": query_input}
+    )
+    return response.query_result.fulfillment_text
 
 
 def main():
-    load_dotenv()
-    telegram_token = os.getenv('TELEGRAM_BOT_TOKEN')
-    logger_bot_token = os.getenv('LOGGER_BOT_TOKEN')
-    chat_id = os.getenv('TELEGRAM_CHAT_ID')
-
     logger_bot = telegram.Bot(logger_bot_token)
     logger.addHandler(TelegramLogsHandler(logger_bot, chat_id))
     logger.warning("Саппорт бот запущен")
@@ -53,4 +61,10 @@ def main():
     updater.idle()
 
 if __name__ == "__main__":
+    load_dotenv()
+    telegram_token = os.getenv('TELEGRAM_BOT_TOKEN')
+    logger_bot_token = os.getenv('LOGGER_BOT_TOKEN')
+    chat_id = os.getenv('TELEGRAM_CHAT_ID')
+    project_id = os.getenv('GOOGLE_PROJECT_ID')
+
     main()
