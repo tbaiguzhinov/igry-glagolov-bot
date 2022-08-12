@@ -1,12 +1,12 @@
-import os
 import logging
-from dotenv import load_dotenv
-import telegram
-from telegram import Update
-from telegram.ext import Updater, CallbackContext
-from telegram.ext import MessageHandler, Filters, CommandHandler
-from google.cloud import dialogflow
+import os
 
+import telegram
+from dotenv import load_dotenv
+from google.cloud import dialogflow
+from telegram import Update
+from telegram.ext import (CallbackContext, CommandHandler, Filters,
+                          MessageHandler, Updater)
 
 logger = logging.getLogger('Logger')
 
