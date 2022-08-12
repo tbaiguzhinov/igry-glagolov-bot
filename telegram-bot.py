@@ -27,7 +27,7 @@ def start(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Здравствуйте!")
 
 
-def echo(update: Update, context: CallbackContext):
+def response(update: Update, context: CallbackContext):
     response = get_workflow_response(update.message.text, update.message.from_user.id)
     update.message.reply_text(response)
 
@@ -52,7 +52,7 @@ def main():
     dispatcher = updater.dispatcher
 
     start_handler = CommandHandler('start', start)
-    echo_handler = MessageHandler(Filters.text, echo)
+    echo_handler = MessageHandler(Filters.text, response)
     
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(echo_handler)
