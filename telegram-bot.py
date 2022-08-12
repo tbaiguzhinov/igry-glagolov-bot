@@ -1,14 +1,10 @@
 import logging
 import os
 
-import json
-import html
-import traceback
 import telegram
 from dotenv import load_dotenv
 from google.cloud import dialogflow
 from telegram import Update
-from telegram.constants import PARSEMODE_HTML
 from telegram.ext import (CallbackContext, CommandHandler, Filters,
                           MessageHandler, Updater)
 
@@ -55,13 +51,13 @@ def get_workflow_response(message, session_id):
 
 
 def error_handler(update: Update, context: CallbackContext):
-    logger.error(msg="Бот упал с ошибкой:", exc_info=context.error)
+    logger.error(msg="Телеграм бот упал с ошибкой:", exc_info=context.error)
 
 
 def main():
     logger_bot = telegram.Bot(logger_bot_token)
     logger.addHandler(TelegramLogsHandler(logger_bot, chat_id))
-    logger.warning("Саппорт бот запущен")
+    logger.warning("Telegram саппорт бот запущен")
 
     updater = Updater(token=telegram_token, use_context=True)
     dispatcher = updater.dispatcher
@@ -76,7 +72,6 @@ def main():
     updater.start_polling()
     updater.idle()
     
-
 
 if __name__ == "__main__":
     load_dotenv()

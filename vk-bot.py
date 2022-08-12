@@ -1,10 +1,27 @@
+import logging
 import os
 import random
 
+import telegram
 import vk_api
 from dotenv import load_dotenv
 from google.cloud import dialogflow
 from vk_api.longpoll import VkEventType, VkLongPoll
+
+logger = logging.getLogger('Logger')
+
+
+class TelegramLogsHandler(logging.Handler):
+    """Logger handler class."""
+
+    def __init__(self, tg_bot, chat_id):
+        super().__init__()
+        self.chat_id = chat_id
+        self.tg_bot = tg_bot
+
+    def emit(self, record):
+        log_entry = self.format(record)
+        self.tg_bot.send_message(chat_id=self.chat_id, text=log_entry)
 
 
 def get_workflow_response(message, session_id):
@@ -30,14 +47,26 @@ def respond(event, vk_api):
 
 
 def main():
-    for event in longpoll.listen():
-        if event.type == VkEventType.MESSAGE_NEW and event.to_me:
-            respond(event, vk_api)
+    logger_bot = telegram.Bot(logger_bot_token)
+    logger.addHandler(TelegramLogsHandler(logger_bot, chat_id))
+    logger.warning("VK саппорт бот запущен")
+
+    while True:
+        try:
+            for event in longpoll.listen():
+                if event.type == VkEventType.MESSAGE_NEW and event.to_me:
+                    respond(event, vk_api)
+        except Exception:
+            logger.exception("VK бот упал с ошибкой:")
+        except KeyboardInterrupt:
+            raise
 
 
 if __name__ == "__main__":
     load_dotenv()
     GROUP_TOKEN = os.getenv('VK_GROUP_TOKEN')
+    logger_bot_token = os.getenv('LOGGER_BOT_TOKEN')
+    chat_id = os.getenv('TELEGRAM_CHAT_ID')
     project_id = os.getenv('GOOGLE_PROJECT_ID')
 
     vk_session = vk_api.VkApi(token=GROUP_TOKEN)
