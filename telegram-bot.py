@@ -3,8 +3,9 @@ import os
 
 import telegram
 from dotenv import load_dotenv
-from google.cloud import dialogflow
+from dialogflow_response import get_workflow_response
 from telegram import Update
+from telegramlogshandler import TelegramLogsHandler
 from telegram.ext import (CallbackContext, CommandHandler, Filters,
                           MessageHandler, Updater)
 
@@ -32,22 +33,13 @@ def start(update: Update, context: CallbackContext):
 
 
 def response(update: Update, context: CallbackContext):
+    project_id = os.getenv('GOOGLE_PROJECT_ID')
     response = get_workflow_response(
         update.message.text,
-        update.message.from_user.id
+        update.message.from_user.id,
+        project_id,
     )
     update.message.reply_text(response)
-
-
-def get_workflow_response(message, session_id):
-    session_client = dialogflow.SessionsClient()
-    session = session_client.session_path(project_id, session_id)
-    text_input = dialogflow.TextInput(text=message, language_code='ru')
-    query_input = dialogflow.QueryInput(text=text_input)
-    response = session_client.detect_intent(
-        request={"session": session, "query_input": query_input}
-    )
-    return response.query_result.fulfillment_text
 
 
 def error_handler(update: Update, context: CallbackContext):
@@ -59,8 +51,7 @@ def main():
     telegram_token = os.getenv('TELEGRAM_BOT_TOKEN')
     logger_bot_token = os.getenv('LOGGER_BOT_TOKEN')
     chat_id = os.getenv('TELEGRAM_CHAT_ID')
-    project_id = os.getenv('GOOGLE_PROJECT_ID')
-
+    
     logger_bot = telegram.Bot(logger_bot_token)
     logger.addHandler(TelegramLogsHandler(logger_bot, chat_id))
     logger.warning("Telegram саппорт бот запущен")
@@ -69,10 +60,10 @@ def main():
     dispatcher = updater.dispatcher
     
     start_handler = CommandHandler('start', start)
-    echo_handler = MessageHandler(Filters.text, response)
+    message_handler = MessageHandler(Filters.text, response)
 
     dispatcher.add_handler(start_handler)
-    dispatcher.add_handler(echo_handler)
+    dispatcher.add_handler(message_handler)
     dispatcher.add_error_handler(error_handler)
 
     updater.start_polling()
