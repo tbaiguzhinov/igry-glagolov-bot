@@ -31,6 +31,9 @@ def create_intent(display_name, training_phrases, answer):
 
 
 def main():
+    load_dotenv()
+    project_id = os.getenv('GOOGLE_PROJECT_ID')
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
         'path_to_file',
@@ -42,7 +45,7 @@ def main():
         training_set = json.load(file)
 
     for display_name, q_and_a in training_set.items():
-        response = create_intent(
+        create_intent(
             display_name=display_name,
             training_phrases=q_and_a['questions'],
             answer=[q_and_a['answer']],
@@ -50,6 +53,4 @@ def main():
 
 
 if __name__ == "__main__":
-    load_dotenv()
-    project_id = os.getenv('GOOGLE_PROJECT_ID')
     main()
