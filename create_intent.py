@@ -47,7 +47,6 @@ def main():
             training_phrases=q_and_a['questions'],
             answer=[q_and_a['answer']],
         )
-        print(response)
 
 
 if __name__ == "__main__":
