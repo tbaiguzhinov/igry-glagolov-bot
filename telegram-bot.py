@@ -55,6 +55,12 @@ def error_handler(update: Update, context: CallbackContext):
 
 
 def main():
+    load_dotenv()
+    telegram_token = os.getenv('TELEGRAM_BOT_TOKEN')
+    logger_bot_token = os.getenv('LOGGER_BOT_TOKEN')
+    chat_id = os.getenv('TELEGRAM_CHAT_ID')
+    project_id = os.getenv('GOOGLE_PROJECT_ID')
+
     logger_bot = telegram.Bot(logger_bot_token)
     logger.addHandler(TelegramLogsHandler(logger_bot, chat_id))
     logger.warning("Telegram саппорт бот запущен")
@@ -74,10 +80,4 @@ def main():
     
 
 if __name__ == "__main__":
-    load_dotenv()
-    telegram_token = os.getenv('TELEGRAM_BOT_TOKEN')
-    logger_bot_token = os.getenv('LOGGER_BOT_TOKEN')
-    chat_id = os.getenv('TELEGRAM_CHAT_ID')
-    project_id = os.getenv('GOOGLE_PROJECT_ID')
-
     main()

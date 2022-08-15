@@ -3,7 +3,7 @@ import os
 import random
 
 import telegram
-import vk_api
+from vk_api import VkApi
 from dotenv import load_dotenv
 from google.cloud import dialogflow
 from vk_api.longpoll import VkEventType, VkLongPoll
@@ -47,6 +47,16 @@ def respond(event, vk_api):
 
 
 def main():
+    load_dotenv()
+    GROUP_TOKEN = os.getenv('VK_GROUP_TOKEN')
+    logger_bot_token = os.getenv('LOGGER_BOT_TOKEN')
+    chat_id = os.getenv('TELEGRAM_CHAT_ID')
+    project_id = os.getenv('GOOGLE_PROJECT_ID')
+
+    vk_session = VkApi(token=GROUP_TOKEN)
+    vk_api = vk_session.get_api()
+    longpoll = VkLongPoll(vk_session)
+
     logger_bot = telegram.Bot(logger_bot_token)
     logger.addHandler(TelegramLogsHandler(logger_bot, chat_id))
     logger.warning("VK саппорт бот запущен")
@@ -63,13 +73,4 @@ def main():
 
 
 if __name__ == "__main__":
-    load_dotenv()
-    GROUP_TOKEN = os.getenv('VK_GROUP_TOKEN')
-    logger_bot_token = os.getenv('LOGGER_BOT_TOKEN')
-    chat_id = os.getenv('TELEGRAM_CHAT_ID')
-    project_id = os.getenv('GOOGLE_PROJECT_ID')
-
-    vk_session = vk_api.VkApi(token=GROUP_TOKEN)
-    vk_api = vk_session.get_api()
-    longpoll = VkLongPoll(vk_session)
     main()
