@@ -7,7 +7,7 @@ from vk_api import VkApi
 from dotenv import load_dotenv
 from vk_api.longpoll import VkEventType, VkLongPoll
 from dialogflow_response import get_workflow_response
-from telegramlogshandler import TelegramLogsHandler
+from telegramlogshandler import LogsHandler
 
 logger = logging.getLogger('Logger')
 
@@ -34,7 +34,7 @@ def main():
     longpoll = VkLongPoll(vk_session)
 
     logger_bot = telegram.Bot(logger_bot_token)
-    logger.addHandler(TelegramLogsHandler(logger_bot, chat_id))
+    logger.addHandler(LogsHandler(logger_bot, chat_id))
     logger.warning("VK саппорт бот запущен")
 
     while True:

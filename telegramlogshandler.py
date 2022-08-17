@@ -1,6 +1,6 @@
-import logging
+from logging import Handler
 
-class TelegramLogsHandler(logging.Handler):
+class LogsHandler(Handler):
     """Logger handler class."""
 
     def __init__(self, tg_bot, chat_id):
