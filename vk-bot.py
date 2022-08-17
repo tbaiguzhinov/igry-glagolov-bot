@@ -14,8 +14,8 @@ logger = logging.getLogger('Logger')
 
 def respond(event, vk_api):
     project_id = os.getenv('GOOGLE_PROJECT_ID')
-    response = get_workflow_response(event.text, event.user_id, project_id)
-    if response:
+    is_fallback, response = get_workflow_response(event.text, event.user_id, project_id)
+    if not is_fallback:
         vk_api.messages.send(
             user_id=event.user_id,
             message=response,

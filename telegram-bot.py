@@ -21,11 +21,13 @@ def start(update: Update, context: CallbackContext):
 
 def response(update: Update, context: CallbackContext):
     project_id = os.getenv('GOOGLE_PROJECT_ID')
-    response = get_workflow_response(
+    is_fallback, response = get_workflow_response(
         update.message.text,
         update.message.from_user.id,
         project_id,
     )
+    if is_fallback:
+        response = 'Я Вас не понял, передаю запрос службе поддержки'
     update.message.reply_text(response)
 
 
